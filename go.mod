@@ -1,4 +1,4 @@
-module github.com/Yoshua-Carrera/go-git-tui-wrapper
+module github.com/Yoshua-Carrera/go-git-tui
 
 go 1.24.2
 
