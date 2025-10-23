@@ -8,18 +8,6 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-type Styles struct {
-	BorderColor lipgloss.Color
-	InputField  lipgloss.Style
-}
-
-type Question struct {
-	question string
-	answer   string
-	input    Input
-	field    ShortAnswerField
-}
-
 type model struct {
 	questions []Question
 	index     int
