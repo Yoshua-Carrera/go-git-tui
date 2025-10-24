@@ -1,6 +1,9 @@
 package main
 
 import (
+	"fmt"
+	"log"
+
 	"github.com/charmbracelet/bubbles/textarea"
 	"github.com/charmbracelet/bubbles/textinput"
 	"github.com/charmbracelet/bubbles/viewport"
@@ -89,4 +92,22 @@ func (m *model) GlamourRender(content string) error {
 
 	m.viewport.SetContent(str)
 	return nil
+}
+
+func (m model) BuildResponseMarkdown() string {
+	s := `
+# Form Responses
+
+| Question    | Answer	 |
+| ---         | ---   	 |
+	`
+
+	for _, q := range m.questions {
+		if q.answer != "" {
+			log.Printf(q.answer)
+			s += fmt.Sprintf("|%s| %s|\n", q.question, q.answer)
+		}
+	}
+
+	return s
 }

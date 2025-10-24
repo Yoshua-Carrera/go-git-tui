@@ -73,10 +73,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 		case "ctrl+n":
 			if m.index == len(m.questions)-1 {
-				m.GlamourRender(content)
 				m.done = true
 			}
 			current.answer = current.input.Value()
+			m.GlamourRender(m.BuildResponseMarkdown())
 			log.Printf("question: %s, answer: %s", current.question, current.answer)
 			m.Next()
 			return m, current.input.Blur
