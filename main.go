@@ -73,7 +73,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 		case "ctrl+n":
 			if m.index == len(m.questions)-1 {
-				m.viewport.SetContent(content)
+				m.GlamourRender(content)
 				m.done = true
 			}
 			current.answer = current.input.Value()

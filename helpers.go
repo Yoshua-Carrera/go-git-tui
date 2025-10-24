@@ -4,6 +4,7 @@ import (
 	"github.com/charmbracelet/bubbles/textarea"
 	"github.com/charmbracelet/bubbles/textinput"
 	"github.com/charmbracelet/bubbles/viewport"
+	"github.com/charmbracelet/glamour"
 	"github.com/charmbracelet/lipgloss"
 )
 
@@ -68,4 +69,24 @@ func NewModel(questions []Question) *model {
 		styles:    styles,
 		viewport:  vp,
 	}
+}
+
+func (m *model) GlamourRender(content string) error {
+	gutter := 2
+	glamourRenderWidth := m.width - m.viewport.Style.GetHorizontalFrameSize() - gutter
+	glamourRenderer, err := glamour.NewTermRenderer(
+		glamour.WithAutoStyle(),
+		glamour.WithWordWrap(glamourRenderWidth),
+	)
+	if err != nil {
+		return err
+	}
+
+	str, err := glamourRenderer.Render(content)
+	if err != nil {
+		return err
+	}
+
+	m.viewport.SetContent(str)
+	return nil
 }
