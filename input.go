@@ -4,6 +4,7 @@ import (
 	"github.com/charmbracelet/bubbles/textarea"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 )
 
 type Input interface {
@@ -60,6 +61,8 @@ func NewShortAnswerField() *ShortAnswerField {
 func NewLongAnswerField() *LongAnswerField {
 	ta := textarea.New()
 	ta.SetWidth(120)
+	ta.FocusedStyle.CursorLine = lipgloss.NewStyle()
+	ta.ShowLineNumbers = false
 	ta.Placeholder = "Your answer here"
 	ta.Focus()
 	return &LongAnswerField{ta}

@@ -4,9 +4,50 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
+
+const content = `
+# Today’s Menu
+
+## Appetizers
+
+| Name        | Price | Notes                           |
+| ---         | ---   | ---                             |
+| Tsukemono   | $2    | Just an appetizer               |
+| Tomato Soup | $4    | Made with San Marzano tomatoes  |
+| Okonomiyaki | $4    | Takes a few minutes to make     |
+| Curry       | $3    | We can add squash if you’d like |
+
+## Seasonal Dishes
+
+| Name                 | Price | Notes              |
+| ---                  | ---   | ---                |
+| Steamed bitter melon | $2    | Not so bitter      |
+| Takoyaki             | $3    | Fun to eat         |
+| Winter squash        | $3    | Today it's pumpkin |
+
+## Desserts
+
+| Name         | Price | Notes                 |
+| ---          | ---   | ---                   |
+| Dorayaki     | $4    | Looks good on rabbits |
+| Banana Split | $5    | A classic             |
+| Cream Puff   | $3    | Pretty creamy!        |
+
+All our dishes are made in-house by Karen, our chef. Most of our ingredients
+are from our garden or the fish market down the street.
+
+Some famous people that have eaten here lately:
+
+* [x] René Redzepi
+* [x] David Chang
+* [ ] Jiro Ono (maybe some day)
+
+Bon appétit!
+`
 
 type model struct {
 	questions []Question
@@ -15,6 +56,7 @@ type model struct {
 	height    int
 	styles    *Styles
 	done      bool
+	viewport  viewport.Model
 }
 
 func (m model) Init() tea.Cmd {
@@ -27,18 +69,31 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
-		case "ctrl+c":
+		case "ctrl+c", "q":
 			return m, tea.Quit
-		case "enter":
+		case "ctrl+n":
 			if m.index == len(m.questions)-1 {
+				m.viewport.SetContent(content)
 				m.done = true
 			}
 			current.answer = current.input.Value()
 			log.Printf("question: %s, answer: %s", current.question, current.answer)
 			m.Next()
 			return m, current.input.Blur
+		case "ctrl+p":
+			if m.index == 0 {
+				return m, nil
+			}
+			current.answer = current.input.Value()
+			log.Printf("question: %s, answer: %s", current.question, current.answer)
+			m.Prev()
+			return m, current.input.Blur
 		}
 
+		if m.done {
+			m.viewport, cmd = m.viewport.Update(msg)
+			return m, cmd
+		}
 	case tea.WindowSizeMsg:
 		m.width = msg.Width
 		m.height = msg.Height
@@ -55,7 +110,17 @@ func (m model) View() string {
 		for _, q := range m.questions {
 			output += fmt.Sprintf("%s: %s\n", q.question, q.answer)
 		}
-		return output
+		return lipgloss.Place(
+			m.width,
+			m.height,
+			lipgloss.Center,
+			lipgloss.Center,
+			lipgloss.JoinVertical(
+				lipgloss.Left,
+				m.viewport.View(),
+				m.HelpView("↑/↓: Navigate • q: Quit"),
+			),
+		)
 	}
 	if m.width == 0 {
 		return "loading..."
@@ -68,9 +133,15 @@ func (m model) View() string {
 		lipgloss.JoinVertical(
 			lipgloss.Center,
 			m.questions[m.index].question,
-			m.styles.InputField.Render(
-				current.input.View(),
-			)),
+			m.styles.InputField.Render(current.input.View()),
+			lipgloss.Place(
+				120,
+				1,
+				lipgloss.Left,
+				lipgloss.Center,
+				m.HelpView("Next [ctrl+n]\tPrevious [ctrl+p]\tQuit [q]"),
+			),
+		),
 	)
 }
 

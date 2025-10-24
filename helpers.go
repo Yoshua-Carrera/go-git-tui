@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/charmbracelet/bubbles/textarea"
 	"github.com/charmbracelet/bubbles/textinput"
+	"github.com/charmbracelet/bubbles/viewport"
 	"github.com/charmbracelet/lipgloss"
 )
 
@@ -27,9 +28,21 @@ func (m *model) Next() {
 	}
 }
 
+func (m *model) Prev() {
+	if m.index == 0 {
+		m.index--
+	} else {
+		m.index = 0
+	}
+}
+
+func (m model) HelpView(msg string) string {
+	return lipgloss.NewStyle().Foreground(lipgloss.Color("241")).Render(msg)
+}
+
 func DefaultStyles() *Styles {
 	s := new(Styles)
-	s.BorderColor = lipgloss.Color("36")
+	s.BorderColor = lipgloss.Color("150")
 	s.InputField = lipgloss.NewStyle().
 		BorderForeground(s.BorderColor).
 		BorderStyle(lipgloss.NormalBorder()).
@@ -38,10 +51,21 @@ func DefaultStyles() *Styles {
 	return s
 }
 
+func DefaultViewportStyles() lipgloss.Style {
+	s := lipgloss.NewStyle().
+		BorderStyle(lipgloss.RoundedBorder()).
+		BorderForeground(lipgloss.Color("62")).
+		PaddingRight(2)
+	return s
+}
+
 func NewModel(questions []Question) *model {
 	styles := DefaultStyles()
+	vp := viewport.New(120, 40)
+	vp.Style = DefaultViewportStyles()
 	return &model{
 		questions: questions,
 		styles:    styles,
+		viewport:  vp,
 	}
 }
