@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"strings"
 
 	"github.com/charmbracelet/bubbles/textarea"
 	"github.com/charmbracelet/bubbles/textinput"
@@ -75,11 +76,10 @@ func NewModel(questions []Question) *model {
 }
 
 func (m *model) GlamourRender(content string) error {
-	gutter := 2
-	glamourRenderWidth := m.width - m.viewport.Style.GetHorizontalFrameSize() - gutter
 	glamourRenderer, err := glamour.NewTermRenderer(
 		glamour.WithAutoStyle(),
-		glamour.WithWordWrap(glamourRenderWidth),
+		glamour.WithWordWrap(120),
+		glamour.WithTableWrap(true),
 	)
 	if err != nil {
 		return err
@@ -104,8 +104,9 @@ func (m model) BuildResponseMarkdown() string {
 
 	for _, q := range m.questions {
 		if q.answer != "" {
-			log.Printf(q.answer)
-			s += fmt.Sprintf("|%s| %s|\n", q.question, q.answer)
+			log.Printf("%s", q.answer)
+			s += fmt.Sprintf("|%s| %s|\n", q.question, strings.ReplaceAll(q.answer, "\n", " "))
+			s += fmt.Sprintf("|%s| %s|\n", " ", " ")
 		}
 	}
 
